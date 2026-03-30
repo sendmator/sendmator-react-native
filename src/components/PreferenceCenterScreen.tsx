@@ -2,7 +2,7 @@
  * Preference Center Screen Component
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -37,46 +37,75 @@ import {
   SlateGreyTheme,
 } from '../themes';
 
-const CHANNELS: Array<{ key: PreferenceChannel; label: string; icon: string }> = [
-  { key: 'email', label: 'Email', icon: '📧' },
-  { key: 'sms', label: 'SMS', icon: '💬' },
-  { key: 'whatsapp', label: 'WhatsApp', icon: '📱' },
-  { key: 'push', label: 'Push', icon: '🔔' },
-];
+const CHANNELS: Array<{ key: PreferenceChannel; label: string; icon: string }> =
+  [
+    { key: 'email', label: 'Email', icon: '📧' },
+    { key: 'sms', label: 'SMS', icon: '💬' },
+    { key: 'whatsapp', label: 'WhatsApp', icon: '📱' },
+    { key: 'push', label: 'Push', icon: '🔔' },
+  ];
 
-const CATEGORIES: Array<{ key: PreferenceCategory; label: string; description: string }> = [
-  { key: 'transactional', label: 'Transactional', description: 'Order confirmations, receipts' },
-  { key: 'promotional', label: 'Promotional', description: 'Sales, offers, deals' },
-  { key: 'utility', label: 'Utility', description: 'Account updates, notifications' },
-  { key: 'conversational', label: 'Conversational', description: 'Two-way conversations' },
-  { key: 'marketing', label: 'Marketing', description: 'Newsletters, campaigns' },
+const CATEGORIES: Array<{
+  key: PreferenceCategory;
+  label: string;
+  description: string;
+}> = [
+  {
+    key: 'transactional',
+    label: 'Transactional',
+    description: 'Order confirmations, receipts',
+  },
+  {
+    key: 'promotional',
+    label: 'Promotional',
+    description: 'Sales, offers, deals',
+  },
+  {
+    key: 'utility',
+    label: 'Utility',
+    description: 'Account updates, notifications',
+  },
+  {
+    key: 'conversational',
+    label: 'Conversational',
+    description: 'Two-way conversations',
+  },
+  {
+    key: 'marketing',
+    label: 'Marketing',
+    description: 'Newsletters, campaigns',
+  },
   { key: 'service', label: 'Service', description: 'Support, help messages' },
   { key: 'system', label: 'System', description: 'System alerts, warnings' },
 ];
 
-const AVAILABLE_THEMES: Array<{ name: string; theme: PreferenceCenterTheme }> = [
-  { name: 'Default', theme: {
-    colors: {
-      primary: '#6366F1',
-      background: '#F8FAFC',
-      surface: '#FFFFFF',
-      text: '#0F172A',
-      textSecondary: '#64748B',
-      border: '#E2E8F0',
-      success: '#10B981',
-      error: '#EF4444',
-      accent: '#8B5CF6',
-    }
-  }},
-  { name: 'Light', theme: LightTheme },
-  { name: 'Dark', theme: DarkTheme },
-  { name: 'Monochrome', theme: MonochromeTheme },
-  { name: 'Ocean Blue', theme: OceanBlueTheme },
-  { name: 'Sunset Purple', theme: SunsetPurpleTheme },
-  { name: 'Indigo Dark', theme: IndigoDarkTheme },
-  { name: 'Forest Green', theme: ForestGreenTheme },
-  { name: 'Slate Grey', theme: SlateGreyTheme },
-];
+const AVAILABLE_THEMES: Array<{ name: string; theme: PreferenceCenterTheme }> =
+  [
+    {
+      name: 'Default',
+      theme: {
+        colors: {
+          primary: '#6366F1',
+          background: '#F8FAFC',
+          surface: '#FFFFFF',
+          text: '#0F172A',
+          textSecondary: '#64748B',
+          border: '#E2E8F0',
+          success: '#10B981',
+          error: '#EF4444',
+          accent: '#8B5CF6',
+        },
+      },
+    },
+    { name: 'Light', theme: LightTheme },
+    { name: 'Dark', theme: DarkTheme },
+    { name: 'Monochrome', theme: MonochromeTheme },
+    { name: 'Ocean Blue', theme: OceanBlueTheme },
+    { name: 'Sunset Purple', theme: SunsetPurpleTheme },
+    { name: 'Indigo Dark', theme: IndigoDarkTheme },
+    { name: 'Forest Green', theme: ForestGreenTheme },
+    { name: 'Slate Grey', theme: SlateGreyTheme },
+  ];
 
 export function PreferenceCenterScreen({
   contactId,
@@ -93,7 +122,9 @@ export function PreferenceCenterScreen({
   const [preferences, setPreferences] = useState<ContactPreferences>({});
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [selectedThemeIndex, setSelectedThemeIndex] = useState(0);
-  const [expandedChannels, setExpandedChannels] = useState<Record<string, boolean>>({
+  const [expandedChannels, setExpandedChannels] = useState<
+    Record<string, boolean>
+  >({
     email: false,
     sms: false,
     whatsapp: false,
@@ -123,11 +154,7 @@ export function PreferenceCenterScreen({
     accent: activeTheme?.colors?.accent || '#8B5CF6',
   };
 
-  useEffect(() => {
-    loadContact();
-  }, [contactId]);
-
-  const loadContact = async () => {
+  const loadContact = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -135,15 +162,23 @@ export function PreferenceCenterScreen({
       setContact(contactData);
       setPreferences(contactData.preferences || {});
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load contact';
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to load contact';
       setError(errorMessage);
       config.onError?.(err instanceof Error ? err : new Error(errorMessage));
     } finally {
       setLoading(false);
     }
-  };
+  }, [client, config, contactId]);
 
-  const handleToggle = (channel: PreferenceChannel, category: PreferenceCategory) => {
+  useEffect(() => {
+    loadContact();
+  }, [loadContact]);
+
+  const handleToggle = (
+    channel: PreferenceChannel,
+    category: PreferenceCategory
+  ) => {
     if (!contact) return;
 
     const currentValue = getPreferenceValue(channel, category);
@@ -153,7 +188,7 @@ export function PreferenceCenterScreen({
     setPreferences((prev) => ({
       ...prev,
       [channel]: {
-        ...(prev[channel] as ChannelPreferences || {}),
+        ...((prev[channel] as ChannelPreferences) || {}),
         [category]: newValue,
       },
     }));
@@ -169,7 +204,7 @@ export function PreferenceCenterScreen({
         setPreferences((prev) => ({
           ...prev,
           [channel]: {
-            ...(prev[channel] as ChannelPreferences || {}),
+            ...((prev[channel] as ChannelPreferences) || {}),
             [category]: currentValue,
           },
         }));
@@ -196,7 +231,9 @@ export function PreferenceCenterScreen({
               await loadContact();
               Alert.alert('Success', 'Unsubscribed from all communications');
             } catch (err) {
-              config.onError?.(err instanceof Error ? err : new Error('Unsubscribe failed'));
+              config.onError?.(
+                err instanceof Error ? err : new Error('Unsubscribe failed')
+              );
               Alert.alert('Error', 'Failed to unsubscribe');
             } finally {
               setSaving(false);
@@ -216,14 +253,19 @@ export function PreferenceCenterScreen({
       await loadContact();
       Alert.alert('Success', 'Subscribed to all communications');
     } catch (err) {
-      config.onError?.(err instanceof Error ? err : new Error('Subscribe failed'));
+      config.onError?.(
+        err instanceof Error ? err : new Error('Subscribe failed')
+      );
       Alert.alert('Error', 'Failed to subscribe');
     } finally {
       setSaving(false);
     }
   };
 
-  const getPreferenceValue = (channel: PreferenceChannel, category: PreferenceCategory): boolean => {
+  const getPreferenceValue = (
+    channel: PreferenceChannel,
+    category: PreferenceCategory
+  ): boolean => {
     const channelPrefs = preferences[channel] as ChannelPreferences | undefined;
     // Return exactly what the API provides, no defaults
     return channelPrefs?.[category] ?? false;
@@ -233,7 +275,9 @@ export function PreferenceCenterScreen({
     const channelPrefs = preferences[channel] as ChannelPreferences | undefined;
     if (!channelPrefs) return { subscribed: 0, total: 0 };
 
-    const subscribed = Object.values(channelPrefs).filter((v) => v === true).length;
+    const subscribed = Object.values(channelPrefs).filter(
+      (v) => v === true
+    ).length;
     const total = Object.keys(channelPrefs).length;
     return { subscribed, total };
   };
@@ -258,7 +302,9 @@ export function PreferenceCenterScreen({
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
@@ -271,10 +317,14 @@ export function PreferenceCenterScreen({
 
   if (error || !contact) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
         <View style={styles.errorContainer}>
           <Text style={[styles.errorIcon]}>⚠️</Text>
-          <Text style={[styles.errorTitle, { color: colors.text }]}>Something Went Wrong</Text>
+          <Text style={[styles.errorTitle, { color: colors.text }]}>
+            Something Went Wrong
+          </Text>
           <Text style={[styles.errorMessage, { color: colors.textSecondary }]}>
             {error || 'Failed to load contact'}
           </Text>
@@ -286,7 +336,9 @@ export function PreferenceCenterScreen({
           </TouchableOpacity>
           {onClose && (
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={[styles.closeButtonText, { color: colors.text }]}>Close</Text>
+              <Text style={[styles.closeButtonText, { color: colors.text }]}>
+                Close
+              </Text>
             </TouchableOpacity>
           )}
         </View>
@@ -295,13 +347,19 @@ export function PreferenceCenterScreen({
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       {/* Header */}
       {!hideHeader && (
         <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <View style={styles.headerContent}>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>Preferences</Text>
-            <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              Preferences
+            </Text>
+            <Text
+              style={[styles.headerSubtitle, { color: colors.textSecondary }]}
+            >
               Manage your communication settings
             </Text>
           </View>
@@ -310,15 +368,34 @@ export function PreferenceCenterScreen({
             {!theme && (
               <TouchableOpacity
                 onPress={() => setShowThemePicker(true)}
-                style={[styles.themeButton, { backgroundColor: colors.primary + '20', marginRight: 8 }]}
+                style={[
+                  styles.themeButton,
+                  { backgroundColor: colors.primary + '20', marginRight: 8 },
+                ]}
               >
-                <Text style={[styles.themeButtonIcon, { color: colors.primary }]}>🎨</Text>
+                <Text
+                  style={[styles.themeButtonIcon, { color: colors.primary }]}
+                >
+                  🎨
+                </Text>
               </TouchableOpacity>
             )}
             {onClose && (
               <TouchableOpacity onPress={onClose} style={styles.closeIcon}>
-                <View style={[styles.closeIconCircle, { backgroundColor: colors.border }]}>
-                  <Text style={[styles.closeIconText, { color: colors.textSecondary }]}>✕</Text>
+                <View
+                  style={[
+                    styles.closeIconCircle,
+                    { backgroundColor: colors.border },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.closeIconText,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    ✕
+                  </Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -334,8 +411,12 @@ export function PreferenceCenterScreen({
         onRequestClose={() => setShowThemePicker(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Theme</Text>
+          <View
+            style={[styles.modalContent, { backgroundColor: colors.surface }]}
+          >
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Select Theme
+            </Text>
             <ScrollView style={styles.themeList}>
               {AVAILABLE_THEMES.map((themeOption, index) => (
                 <TouchableOpacity
@@ -357,22 +438,36 @@ export function PreferenceCenterScreen({
                     style={[
                       styles.themeOptionText,
                       { color: colors.text },
-                      selectedThemeIndex === index && { color: colors.primary, fontWeight: '700' },
+                      selectedThemeIndex === index && {
+                        color: colors.primary,
+                        fontWeight: '700',
+                      },
                     ]}
                   >
                     {themeOption.name}
                   </Text>
                   {selectedThemeIndex === index && (
-                    <Text style={[styles.themeCheckmark, { color: colors.primary }]}>✓</Text>
+                    <Text
+                      style={[styles.themeCheckmark, { color: colors.primary }]}
+                    >
+                      ✓
+                    </Text>
                   )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalCloseButton, { backgroundColor: colors.border }]}
+              style={[
+                styles.modalCloseButton,
+                { backgroundColor: colors.border },
+              ]}
               onPress={() => setShowThemePicker(false)}
             >
-              <Text style={[styles.modalCloseButtonText, { color: colors.text }]}>Close</Text>
+              <Text
+                style={[styles.modalCloseButtonText, { color: colors.text }]}
+              >
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -385,18 +480,26 @@ export function PreferenceCenterScreen({
       >
         {/* Contact Info Card */}
         <View style={[styles.contactCard, { backgroundColor: colors.surface }]}>
-          <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
+          <View
+            style={[styles.avatarCircle, { backgroundColor: colors.primary }]}
+          >
             <Text style={styles.avatarText}>
-              {contact.first_name?.[0] || contact.email?.[0]?.toUpperCase() || 'U'}
+              {contact.first_name?.[0] ||
+                contact.email?.[0]?.toUpperCase() ||
+                'U'}
             </Text>
           </View>
           <View style={styles.contactInfo}>
             {contact.first_name || contact.last_name ? (
               <Text style={[styles.contactName, { color: colors.text }]}>
-                {[contact.first_name, contact.last_name].filter(Boolean).join(' ')}
+                {[contact.first_name, contact.last_name]
+                  .filter(Boolean)
+                  .join(' ')}
               </Text>
             ) : null}
-            <Text style={[styles.contactEmail, { color: colors.textSecondary }]}>
+            <Text
+              style={[styles.contactEmail, { color: colors.textSecondary }]}
+            >
               {contact.email}
             </Text>
           </View>
@@ -405,14 +508,23 @@ export function PreferenceCenterScreen({
         {/* Quick Actions */}
         <View style={styles.actionsContainer}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.actionButtonPrimary, {
-              backgroundColor: colors.primary + '15',
-              borderColor: colors.primary
-            }]}
+            style={[
+              styles.actionButton,
+              styles.actionButtonPrimary,
+              {
+                backgroundColor: colors.primary + '15',
+                borderColor: colors.primary,
+              },
+            ]}
             onPress={handleSubscribeAll}
             disabled={saving}
           >
-            <View style={[styles.actionIconCircle, { backgroundColor: colors.primary }]}>
+            <View
+              style={[
+                styles.actionIconCircle,
+                { backgroundColor: colors.primary },
+              ]}
+            >
               <Text style={styles.actionIcon}>✓</Text>
             </View>
             <Text style={[styles.actionButtonText, { color: colors.primary }]}>
@@ -420,17 +532,28 @@ export function PreferenceCenterScreen({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.actionButton, styles.actionButtonSecondary, {
-              backgroundColor: colors.textSecondary + '15',
-              borderColor: colors.textSecondary
-            }]}
+            style={[
+              styles.actionButton,
+              styles.actionButtonSecondary,
+              {
+                backgroundColor: colors.textSecondary + '15',
+                borderColor: colors.textSecondary,
+              },
+            ]}
             onPress={handleUnsubscribeAll}
             disabled={saving}
           >
-            <View style={[styles.actionIconCircle, { backgroundColor: colors.textSecondary }]}>
+            <View
+              style={[
+                styles.actionIconCircle,
+                { backgroundColor: colors.textSecondary },
+              ]}
+            >
               <Text style={styles.actionIcon}>✕</Text>
             </View>
-            <Text style={[styles.actionButtonText, { color: colors.textSecondary }]}>
+            <Text
+              style={[styles.actionButtonText, { color: colors.textSecondary }]}
+            >
               Disable All
             </Text>
           </TouchableOpacity>
@@ -443,14 +566,21 @@ export function PreferenceCenterScreen({
 
         {CHANNELS.map((channel) => {
           const stats = getChannelStats(channel.key);
-          const progress = stats.total > 0 ? (stats.subscribed / stats.total) * 100 : 0;
+          const progress =
+            stats.total > 0 ? (stats.subscribed / stats.total) * 100 : 0;
           const isExpanded = expandedChannels[channel.key];
 
           return (
-            <View key={channel.key} style={[styles.channelCard, {
-              backgroundColor: colors.surface,
-              shadowColor: colors.text,
-            }]}>
+            <View
+              key={channel.key}
+              style={[
+                styles.channelCard,
+                {
+                  backgroundColor: colors.surface,
+                  shadowColor: colors.text,
+                },
+              ]}
+            >
               <TouchableOpacity
                 style={styles.channelHeader}
                 onPress={() => toggleChannel(channel.key)}
@@ -461,18 +591,35 @@ export function PreferenceCenterScreen({
                     {channel.label}
                   </Text>
                   <View style={styles.statsRow}>
-                    <Text style={[styles.channelStats, { color: colors.textSecondary }]}>
+                    <Text
+                      style={[
+                        styles.channelStats,
+                        { color: colors.textSecondary },
+                      ]}
+                    >
                       {stats.subscribed} of {stats.total} active
                     </Text>
-                    <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-                      <View style={[styles.progressFill, {
-                        width: `${progress}%`,
-                        backgroundColor: colors.primary
-                      }]} />
+                    <View
+                      style={[
+                        styles.progressBar,
+                        { backgroundColor: colors.border },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            width: `${progress}%`,
+                            backgroundColor: colors.primary,
+                          },
+                        ]}
+                      />
                     </View>
                   </View>
                 </View>
-                <Text style={[styles.expandIcon, { color: colors.textSecondary }]}>
+                <Text
+                  style={[styles.expandIcon, { color: colors.textSecondary }]}
+                >
                   {isExpanded ? '−' : '+'}
                 </Text>
               </TouchableOpacity>
@@ -490,37 +637,63 @@ export function PreferenceCenterScreen({
               >
                 {isExpanded && (
                   <>
-                    <View style={[styles.categoriesSeparator, { backgroundColor: colors.border }]} />
+                    <View
+                      style={[
+                        styles.categoriesSeparator,
+                        { backgroundColor: colors.border },
+                      ]}
+                    />
                     <View style={styles.categoriesContainer}>
                       {CATEGORIES.map((category, catIndex) => {
-                    const isEnabled = getPreferenceValue(channel.key, category.key);
+                        const isEnabled = getPreferenceValue(
+                          channel.key,
+                          category.key
+                        );
 
-                    return (
-                      <View
-                        key={`${channel.key}-${category.key}`}
-                        style={[styles.preferenceRow, catIndex > 0 && {
-                          borderTopColor: colors.border,
-                          borderTopWidth: 1
-                        }]}
-                      >
-                        <View style={styles.preferenceInfo}>
-                          <Text style={[styles.preferenceLabel, { color: colors.text }]}>
-                            {category.label}
-                          </Text>
-                          <Text style={[styles.preferenceDescription, { color: colors.textSecondary }]}>
-                            {category.description}
-                          </Text>
-                        </View>
-                        <Switch
-                          value={isEnabled}
-                          onValueChange={() => handleToggle(channel.key, category.key)}
-                          trackColor={{ false: colors.border, true: colors.primary + '40' }}
-                          thumbColor={isEnabled ? '#FFFFFF' : '#FFFFFF'}
-                          ios_backgroundColor={colors.border}
-                        />
-                      </View>
-                    );
-                  })}
+                        return (
+                          <View
+                            key={`${channel.key}-${category.key}`}
+                            style={[
+                              styles.preferenceRow,
+                              catIndex > 0 && {
+                                borderTopColor: colors.border,
+                                borderTopWidth: 1,
+                              },
+                            ]}
+                          >
+                            <View style={styles.preferenceInfo}>
+                              <Text
+                                style={[
+                                  styles.preferenceLabel,
+                                  { color: colors.text },
+                                ]}
+                              >
+                                {category.label}
+                              </Text>
+                              <Text
+                                style={[
+                                  styles.preferenceDescription,
+                                  { color: colors.textSecondary },
+                                ]}
+                              >
+                                {category.description}
+                              </Text>
+                            </View>
+                            <Switch
+                              value={isEnabled}
+                              onValueChange={() =>
+                                handleToggle(channel.key, category.key)
+                              }
+                              trackColor={{
+                                false: colors.border,
+                                true: colors.primary + '40',
+                              }}
+                              thumbColor={isEnabled ? '#FFFFFF' : '#FFFFFF'}
+                              ios_backgroundColor={colors.border}
+                            />
+                          </View>
+                        );
+                      })}
                     </View>
                   </>
                 )}

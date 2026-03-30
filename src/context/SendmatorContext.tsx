@@ -19,7 +19,10 @@ export interface SendmatorProviderProps {
   children: ReactNode;
 }
 
-export function SendmatorProvider({ config, children }: SendmatorProviderProps) {
+export function SendmatorProvider({
+  config,
+  children,
+}: SendmatorProviderProps) {
   const client = new SendmatorApiClient(config.apiUrl, config.apiKey);
 
   return (

@@ -21,16 +21,21 @@ export class SendmatorApiClient {
    * Get contact data with preferences by external_id
    */
   async getContact(externalId: string): Promise<ContactData> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/external/${externalId}`, {
-      method: 'GET',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/external/${externalId}`,
+      {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to fetch contact' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Failed to fetch contact' }));
       throw new Error(error.message || 'Failed to fetch contact');
     }
 
@@ -41,16 +46,21 @@ export class SendmatorApiClient {
    * Get contact preferences
    */
   async getPreferences(contactId: string): Promise<ContactPreferences> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/${contactId}/preferences`, {
-      method: 'GET',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/${contactId}/preferences`,
+      {
+        method: 'GET',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Failed to fetch preferences' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Failed to fetch preferences' }));
       throw new Error(error.message || 'Failed to fetch preferences');
     }
 
@@ -65,17 +75,22 @@ export class SendmatorApiClient {
     contactId: string,
     preferences: PreferenceUpdate[]
   ): Promise<ContactPreferences> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/${contactId}/preferences`, {
-      method: 'PATCH',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ preferences }),
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/${contactId}/preferences`,
+      {
+        method: 'PATCH',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ preferences }),
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Update failed' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Update failed' }));
       throw new Error(error.message || 'Failed to update preferences');
     }
 
@@ -105,7 +120,9 @@ export class SendmatorApiClient {
     );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Update failed' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Update failed' }));
       throw new Error(error.message || 'Failed to update preference');
     }
   }
@@ -114,16 +131,21 @@ export class SendmatorApiClient {
    * Unsubscribe from all preferences
    */
   async unsubscribeAll(contactId: string): Promise<void> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/${contactId}/preferences`, {
-      method: 'DELETE',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/${contactId}/preferences`,
+      {
+        method: 'DELETE',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Unsubscribe failed' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Unsubscribe failed' }));
       throw new Error(error.message || 'Failed to unsubscribe');
     }
   }
@@ -132,16 +154,21 @@ export class SendmatorApiClient {
    * Unsubscribe from specific channel
    */
   async unsubscribeChannel(contactId: string, channel: string): Promise<void> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/${contactId}/preferences/${channel}`, {
-      method: 'DELETE',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/${contactId}/preferences/${channel}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Unsubscribe failed' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Unsubscribe failed' }));
       throw new Error(error.message || 'Failed to unsubscribe from channel');
     }
   }
@@ -150,16 +177,21 @@ export class SendmatorApiClient {
    * Subscribe to all preferences
    */
   async subscribeAll(contactId: string): Promise<void> {
-    const response = await fetch(`${this.apiUrl}/v1/contacts/${contactId}/preferences/subscribe-all`, {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': this.apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await fetch(
+      `${this.apiUrl}/v1/contacts/${contactId}/preferences/subscribe-all`,
+      {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': this.apiKey,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'Subscribe failed' }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: 'Subscribe failed' }));
       throw new Error(error.message || 'Failed to subscribe');
     }
   }

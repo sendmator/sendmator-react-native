@@ -12,18 +12,16 @@ import Constants from 'expo-constants';
 import {
   SendmatorProvider,
   PreferenceCenterScreen,
-  MonochromeTheme,
-  OceanBlueTheme,
-  SunsetPurpleTheme,
-  SlateGreyTheme,
-  DarkTheme,
   LightTheme,
 } from 'sendmator-react-native';
 
 // Get environment variables from expo-constants
-const API_KEY = Constants.expoConfig?.extra?.sendmatorApiKey || 'your-api-key-here';
-const API_URL = Constants.expoConfig?.extra?.sendmatorApiUrl || 'http://localhost:3000';
-const DEFAULT_CONTACT_ID = Constants.expoConfig?.extra?.sendmatorTestContactId || '';
+const API_KEY =
+  Constants.expoConfig?.extra?.sendmatorApiKey || 'your-api-key-here';
+const API_URL =
+  Constants.expoConfig?.extra?.sendmatorApiUrl || 'http://localhost:3000';
+const DEFAULT_CONTACT_ID =
+  Constants.expoConfig?.extra?.sendmatorTestContactId || '';
 
 function AppContent() {
   const [contactId, setContactId] = useState<string>(DEFAULT_CONTACT_ID);
@@ -34,7 +32,7 @@ function AppContent() {
       Alert.alert('Error', 'Please enter a contact ID or external ID');
       return;
     }
-    
+
     setShowPreferences(true);
   };
 
@@ -69,10 +67,7 @@ function AppContent() {
           autoCorrect={false}
         />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleShowPreferences}
-        >
+        <TouchableOpacity style={styles.button} onPress={handleShowPreferences}>
           <Text style={styles.buttonText}>Open Preference Center</Text>
         </TouchableOpacity>
 
