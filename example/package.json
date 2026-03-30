@@ -10,15 +10,19 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
+    "dotenv": "^17.3.1",
     "expo": "~54.0.33",
+    "expo-constants": "~18.0.13",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
+    "react-native-dotenv": "^3.4.11",
     "react-native-web": "~0.21.0"
   },
   "private": true,
   "devDependencies": {
+    "@types/react-native-dotenv": "^0.2.2",
     "react-native-builder-bob": "^0.40.18",
     "react-native-monorepo-config": "^0.3.3"
   }

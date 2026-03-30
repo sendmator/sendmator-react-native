@@ -1,6 +1,6 @@
 {
   "name": "sendmator-react-native",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "React Native SDK for Sendmator contact preference management",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
@@ -41,7 +41,21 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "sendmator",
+    "preferences",
+    "communication",
+    "notifications",
+    "email",
+    "sms",
+    "whatsapp",
+    "push-notifications",
+    "preference-center",
+    "unsubscribe",
+    "unified-inbox",
+    "PreferenceCenter",
+    "user-preference",
+    "user-PreferenceCenter"
   ],
   "repository": {
     "type": "git",
