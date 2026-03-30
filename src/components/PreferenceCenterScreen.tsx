@@ -109,7 +109,7 @@ export function PreferenceCenterScreen({
   });
 
   // Use selected theme or prop theme
-  const activeTheme = theme || AVAILABLE_THEMES[selectedThemeIndex].theme;
+  const activeTheme = theme || AVAILABLE_THEMES[selectedThemeIndex]?.theme;
 
   const colors = {
     primary: activeTheme?.colors?.primary || '#6366F1',
@@ -240,12 +240,15 @@ export function PreferenceCenterScreen({
 
   const toggleChannel = (channelKey: PreferenceChannel) => {
     const isExpanding = !expandedChannels[channelKey];
+    const animationValue = animationRefs.current[channelKey];
 
-    Animated.timing(animationRefs.current[channelKey], {
-      toValue: isExpanding ? 1 : 0,
-      duration: 300,
-      useNativeDriver: false,
-    }).start();
+    if (animationValue) {
+      Animated.timing(animationValue, {
+        toValue: isExpanding ? 1 : 0,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
 
     setExpandedChannels((prev) => ({
       ...prev,
@@ -384,7 +387,7 @@ export function PreferenceCenterScreen({
         <View style={[styles.contactCard, { backgroundColor: colors.surface }]}>
           <View style={[styles.avatarCircle, { backgroundColor: colors.primary }]}>
             <Text style={styles.avatarText}>
-              {contact.first_name?.[0] || contact.email[0].toUpperCase()}
+              {contact.first_name?.[0] || contact.email?.[0]?.toUpperCase() || 'U'}
             </Text>
           </View>
           <View style={styles.contactInfo}>
@@ -438,7 +441,7 @@ export function PreferenceCenterScreen({
           CHANNELS
         </Text>
 
-        {CHANNELS.map((channel, index) => {
+        {CHANNELS.map((channel) => {
           const stats = getChannelStats(channel.key);
           const progress = stats.total > 0 ? (stats.subscribed / stats.total) * 100 : 0;
           const isExpanded = expandedChannels[channel.key];
@@ -477,7 +480,7 @@ export function PreferenceCenterScreen({
               {/* Categories - Collapsible */}
               <Animated.View
                 style={{
-                  maxHeight: animationRefs.current[channel.key].interpolate({
+                  maxHeight: animationRefs.current[channel.key]?.interpolate({
                     inputRange: [0, 1],
                     outputRange: [0, 1000],
                   }),

@@ -52,6 +52,7 @@ export interface PreferenceCenterTheme {
     border?: string;
     success?: string;
     error?: string;
+    accent?: string;
   };
 }
 
