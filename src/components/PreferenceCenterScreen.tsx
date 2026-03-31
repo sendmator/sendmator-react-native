@@ -52,31 +52,16 @@ const CATEGORIES: Array<{
 }> = [
   {
     key: 'transactional',
-    label: 'Transactional',
-    description: 'Order confirmations, receipts',
+    label: 'Essential Messages',
+    description:
+      'Order confirmations, receipts, account updates, security alerts, and OTP codes',
   },
   {
     key: 'promotional',
-    label: 'Promotional',
-    description: 'Sales, offers, deals',
+    label: 'Marketing Messages',
+    description:
+      'Promotional offers, newsletters, marketing campaigns, and announcements',
   },
-  {
-    key: 'utility',
-    label: 'Utility',
-    description: 'Account updates, notifications',
-  },
-  {
-    key: 'conversational',
-    label: 'Conversational',
-    description: 'Two-way conversations',
-  },
-  {
-    key: 'marketing',
-    label: 'Marketing',
-    description: 'Newsletters, campaigns',
-  },
-  { key: 'service', label: 'Service', description: 'Support, help messages' },
-  { key: 'system', label: 'System', description: 'System alerts, warnings' },
 ];
 
 const AVAILABLE_THEMES: Array<{ name: string; theme: PreferenceCenterTheme }> =

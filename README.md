@@ -5,9 +5,9 @@ React Native SDK for contact preference management. Drop-in UI component that al
 ## Installation
 
 ```bash
-npm install sendmator-react-native
+npm install @sendmator/react-native
 # or
-yarn add sendmator-react-native
+yarn add @sendmator/react-native
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ yarn add sendmator-react-native
 ### 1. Wrap your app with SendmatorProvider
 
 ```tsx
-import { SendmatorProvider } from 'sendmator-react-native';
+import { SendmatorProvider } from '@sendmator/react-native';
 
 export default function App() {
   return (
@@ -34,7 +34,7 @@ export default function App() {
 ### 2. Use PreferenceCenterScreen in your settings
 
 ```tsx
-import { PreferenceCenterScreen } from 'sendmator-react-native';
+import { PreferenceCenterScreen } from '@sendmator/react-native';
 
 function UserSettingsScreen() {
   const { user } = useAuth();
@@ -106,7 +106,7 @@ import {
   LightTheme,
   DarkTheme,
   OceanBlueTheme,
-} from 'sendmator-react-native';
+} from '@sendmator/react-native';
 
 // Use a pre-built theme
 <PreferenceCenterScreen
@@ -172,7 +172,7 @@ import type {
   ContactPreferences,
   ContactData,
   PreferenceCenterProps,
-} from 'sendmator-react-native';
+} from '@sendmator/react-native';
 ```
 
 ## License
