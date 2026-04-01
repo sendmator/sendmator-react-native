@@ -13,7 +13,7 @@ import {
   SendmatorProvider,
   PreferenceCenterScreen,
   LightTheme,
-} from 'sendmator-react-native';
+} from '@sendmator/react-native';
 
 // Get environment variables from expo-constants
 const API_KEY =
@@ -112,6 +112,10 @@ function AppContent() {
 }
 
 export default function App() {
+  // In a real app, this would be set after user login
+  // For this example, you can set it in .env as SENDMATOR_TEST_CONTACT_ID
+  const contactId = DEFAULT_CONTACT_ID || undefined;
+
   return (
     <SendmatorProvider
       config={{
@@ -121,7 +125,11 @@ export default function App() {
           console.error('Sendmator error:', error);
           Alert.alert('Error', error.message);
         },
+        onFcmTokenSynced: (token) => {
+          console.log('✅ FCM Token synced:', token.substring(0, 20) + '...');
+        },
       }}
+      contactId={contactId} // FCM token will auto-sync for this contact
     >
       <AppContent />
     </SendmatorProvider>

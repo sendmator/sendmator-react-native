@@ -40,6 +40,10 @@ export interface SendmatorConfig {
   apiKey: string;
   apiUrl: string;
   onError?: (error: Error) => void;
+  /** Enable automatic FCM token collection and sync (default: true) */
+  autoSyncFcmToken?: boolean;
+  /** Callback when FCM token is successfully synced */
+  onFcmTokenSynced?: (token: string) => void;
 }
 
 export interface PreferenceCenterTheme {
@@ -82,6 +86,8 @@ export interface ContactData {
   preferences: ContactPreferences;
   custom_fields?: Record<string, any>;
   metadata?: Record<string, any>;
+  fcm_token?: string; // Firebase Cloud Messaging token for push notifications
+  apns_token?: string; // Apple Push Notification Service token (iOS)
   created_at: string;
   updated_at: string;
 }

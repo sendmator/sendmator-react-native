@@ -2,14 +2,21 @@
  * Sendmator Context Provider
  */
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { SendmatorApiClient } from '../api/client';
 import type { SendmatorConfig } from '../types';
+import {
+  getFcmToken,
+  onFcmTokenRefresh,
+  isFirebaseConfigured,
+} from '../utils/fcmTokenManager';
 
 interface SendmatorContextType {
   client: SendmatorApiClient;
   config: SendmatorConfig;
+  /** Manually sync FCM token for a contact */
+  syncFcmToken: (contactExternalId: string) => Promise<void>;
 }
 
 const SendmatorContext = createContext<SendmatorContextType | null>(null);
@@ -17,16 +24,93 @@ const SendmatorContext = createContext<SendmatorContextType | null>(null);
 export interface SendmatorProviderProps {
   config: SendmatorConfig;
   children: ReactNode;
+  /** Contact's ID (external_id) for auto-syncing FCM token */
+  contactId?: string;
 }
 
 export function SendmatorProvider({
   config,
   children,
+  contactId,
 }: SendmatorProviderProps) {
   const client = new SendmatorApiClient(config.apiUrl, config.apiKey);
+  const tokenRefreshUnsubscribeRef = useRef<(() => void) | null>(null);
+  const currentContactIdRef = useRef<string | undefined>(contactId);
+
+  // Update ref when contactId changes
+  useEffect(() => {
+    currentContactIdRef.current = contactId;
+  }, [contactId]);
+
+  /**
+   * Sync FCM token to Sendmator backend
+   */
+  const syncFcmToken = async (externalId: string): Promise<void> => {
+    if (!isFirebaseConfigured()) {
+      console.log('[Sendmator] Firebase not configured, skipping FCM sync');
+      return;
+    }
+
+    try {
+      const token = await getFcmToken();
+      if (!token) {
+        console.log('[Sendmator] No FCM token available');
+        return;
+      }
+
+      await client.updateDeviceTokenByExternalId(externalId, token);
+      console.log('[Sendmator] FCM token synced successfully');
+
+      // Call success callback if provided
+      config.onFcmTokenSynced?.(token);
+    } catch (error) {
+      const err = error as Error;
+      console.error('[Sendmator] Failed to sync FCM token:', err.message);
+      config.onError?.(err);
+    }
+  };
+
+  // Auto-sync FCM token on mount and when contactId changes
+  useEffect(() => {
+    const autoSyncEnabled = config.autoSyncFcmToken !== false; // Default true
+
+    if (autoSyncEnabled && contactId) {
+      // Initial sync
+      syncFcmToken(contactId).catch((error) => {
+        console.warn('[Sendmator] Auto-sync failed:', error);
+      });
+
+      // Set up token refresh listener
+      const unsubscribe = onFcmTokenRefresh((newToken) => {
+        console.log('[Sendmator] Token refreshed, syncing...');
+        if (currentContactIdRef.current) {
+          client
+            .updateDeviceTokenByExternalId(currentContactIdRef.current, newToken)
+            .then(() => {
+              console.log('[Sendmator] Refreshed token synced');
+              config.onFcmTokenSynced?.(newToken);
+            })
+            .catch((error) => {
+              console.error('[Sendmator] Failed to sync refreshed token:', error);
+              config.onError?.(error as Error);
+            });
+        }
+      });
+
+      tokenRefreshUnsubscribeRef.current = unsubscribe;
+    }
+
+    // Cleanup on unmount or when contactId changes
+    return () => {
+      if (tokenRefreshUnsubscribeRef.current) {
+        tokenRefreshUnsubscribeRef.current();
+        tokenRefreshUnsubscribeRef.current = null;
+      }
+    };
+  }, [contactId, config.autoSyncFcmToken]);
 
   return (
-    <SendmatorContext.Provider value={{ client, config }}>
+    <SendmatorContext.Provider value={{ client, config, syncFcmToken }}>
       {children}
     </SendmatorContext.Provider>
   );
