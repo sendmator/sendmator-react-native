@@ -58,7 +58,7 @@ export function SendmatorProvider({
         return;
       }
 
-      await client.updateDeviceTokenByExternalId(externalId, token);
+      await client.updateDeviceToken(externalId, token);
       console.log('[Sendmator] FCM token synced successfully');
 
       // Call success callback if provided
@@ -85,7 +85,7 @@ export function SendmatorProvider({
         console.log('[Sendmator] Token refreshed, syncing...');
         if (currentContactIdRef.current) {
           client
-            .updateDeviceTokenByExternalId(currentContactIdRef.current, newToken)
+            .updateDeviceToken(currentContactIdRef.current, newToken)
             .then(() => {
               console.log('[Sendmator] Refreshed token synced');
               config.onFcmTokenSynced?.(newToken);

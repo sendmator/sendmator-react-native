@@ -200,33 +200,6 @@ export class SendmatorApiClient {
    * Update device FCM token for push notifications
    */
   async updateDeviceToken(
-    contactId: string,
-    fcmToken: string
-  ): Promise<void> {
-    const response = await fetch(
-      `${this.apiUrl}/v1/contacts/${contactId}/device-token`,
-      {
-        method: 'PATCH',
-        headers: {
-          'X-API-KEY': this.apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fcm_token: fcmToken }),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: 'Failed to update device token' }));
-      throw new Error(error.message || 'Failed to update device token');
-    }
-  }
-
-  /**
-   * Update device token by external_id (used for auto-sync)
-   */
-  async updateDeviceTokenByExternalId(
     externalId: string,
     fcmToken: string
   ): Promise<void> {
