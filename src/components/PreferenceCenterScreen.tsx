@@ -99,7 +99,7 @@ export function PreferenceCenterScreen({
   theme,
   hideHeader = false,
 }: PreferenceCenterProps) {
-  const { client, config } = useSendmator();
+  const { client, config, syncFcmToken } = useSendmator();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [contact, setContact] = useState<ContactData | null>(null);
@@ -146,6 +146,13 @@ export function PreferenceCenterScreen({
       const contactData = await client.getContact(contactId);
       setContact(contactData);
       setPreferences(contactData.preferences || {});
+
+      // Sync FCM token when preference screen is opened
+      // This ensures the contact always has the latest device token
+      syncFcmToken(contactId).catch((err) => {
+        console.warn('[PreferenceCenterScreen] FCM token sync failed:', err);
+        // Don't show error to user - token sync is a background operation
+      });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load contact';
@@ -154,7 +161,7 @@ export function PreferenceCenterScreen({
     } finally {
       setLoading(false);
     }
-  }, [client, config, contactId]);
+  }, [client, config, contactId, syncFcmToken]);
 
   useEffect(() => {
     loadContact();

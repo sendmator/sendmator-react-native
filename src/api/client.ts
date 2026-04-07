@@ -13,7 +13,9 @@ export class SendmatorApiClient {
   private apiKey: string;
 
   constructor(apiUrl: string, apiKey: string) {
-    this.apiUrl = apiUrl.replace(/\/$/, ''); // Remove trailing slash
+    // Remove trailing slash and ensure /api prefix
+    const cleanUrl = apiUrl.replace(/\/$/, '');
+    this.apiUrl = cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
     this.apiKey = apiKey;
   }
 
@@ -197,11 +199,24 @@ export class SendmatorApiClient {
   }
 
   /**
-   * Update device FCM token for push notifications
+   * Update device token for push notifications
+   *
+   * Smart upsert logic:
+   * - Uses token as unique key
+   * - Updates existing token metadata if token exists
+   * - Adds new token if token doesn't exist
+   * - Auto-cleanup of stale tokens (> 90 days)
+   * - Supports multiple devices per contact
    */
   async updateDeviceToken(
     externalId: string,
-    fcmToken: string
+    data: {
+      token: string;
+      platform: 'android' | 'ios' | 'web';
+      app_version?: string;
+      os_version?: string;
+      device_model?: string;
+    }
   ): Promise<void> {
     const response = await fetch(
       `${this.apiUrl}/v1/contacts/external/${externalId}/device-token`,
@@ -211,7 +226,7 @@ export class SendmatorApiClient {
           'X-API-KEY': this.apiKey,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fcm_token: fcmToken }),
+        body: JSON.stringify(data),
       }
     );
 

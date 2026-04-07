@@ -4,6 +4,7 @@
 
 import { createContext, useContext, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { SendmatorApiClient } from '../api/client';
 import type { SendmatorConfig } from '../types';
 import {
@@ -58,7 +59,16 @@ export function SendmatorProvider({
         return;
       }
 
-      await client.updateDeviceToken(externalId, token);
+      // Detect platform and prepare device token data
+      const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+
+      await client.updateDeviceToken(externalId, {
+        token,
+        platform,
+        os_version: Platform.Version?.toString(),
+        // app_version and device_model can be added via config if needed
+      });
+
       console.log('[Sendmator] FCM token synced successfully');
 
       // Call success callback if provided
@@ -74,7 +84,10 @@ export function SendmatorProvider({
   useEffect(() => {
     const autoSyncEnabled = config.autoSyncFcmToken !== false; // Default true
 
+    console.log('[Sendmator] Effect triggered - autoSyncEnabled:', autoSyncEnabled, 'contactId:', contactId);
+
     if (autoSyncEnabled && contactId) {
+      console.log('[Sendmator] Starting FCM token sync for contact:', contactId);
       // Initial sync
       syncFcmToken(contactId).catch((error) => {
         console.warn('[Sendmator] Auto-sync failed:', error);
@@ -84,8 +97,14 @@ export function SendmatorProvider({
       const unsubscribe = onFcmTokenRefresh((newToken) => {
         console.log('[Sendmator] Token refreshed, syncing...');
         if (currentContactIdRef.current) {
+          const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+
           client
-            .updateDeviceToken(currentContactIdRef.current, newToken)
+            .updateDeviceToken(currentContactIdRef.current, {
+              token: newToken,
+              platform,
+              os_version: Platform.Version?.toString(),
+            })
             .then(() => {
               console.log('[Sendmator] Refreshed token synced');
               config.onFcmTokenSynced?.(newToken);

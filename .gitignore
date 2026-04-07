@@ -91,3 +91,11 @@ nitrogen/
 .env.*.local
 example/.env
 example/.env.local
+
+# Firebase configuration files (contain sensitive API keys)
+example/google-services.json
+example/GoogleService-Info.plist
+
+# Expo prebuild generated native projects (regenerate with `expo prebuild`)
+example/android/
+example/ios/

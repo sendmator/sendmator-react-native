@@ -17,6 +17,7 @@ module.exports = {
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'sendmatorreactnative.example',
+      googleServicesFile: './GoogleService-Info.plist',
     },
     android: {
       adaptiveIcon: {
@@ -25,6 +26,7 @@ module.exports = {
       },
       edgeToEdgeEnabled: true,
       package: 'sendmatorreactnative.example',
+      googleServicesFile: './google-services.json',
     },
     web: {
       favicon: './assets/favicon.png',
@@ -34,5 +36,6 @@ module.exports = {
       sendmatorApiUrl: process.env.SENDMATOR_API_URL,
       sendmatorTestContactId: process.env.SENDMATOR_TEST_CONTACT_ID,
     },
+    plugins: ['@react-native-firebase/app'],
   },
 };
